@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require "ruby_differ"
+
+path = ARGV.shift
+strage_path = RubyDiffer::StragePath.new(path)
+RubyDiffer::Save.run(strage_path)
