@@ -37,48 +37,37 @@ module RubyDiffer
         exit
       end
 
-      puts "*" * 20
+      puts "*" * 40
       puts "Class"
-      puts "*" * 20
+      puts "*" * 40
       unless old_classes.classes == new_classes.classes
         (old_classes.classes - new_classes.classes).each do |name|
           puts "#{ old_version.name } -> #{ new_version.name } Deleted Class => #{name}"
         end
         (new_classes.classes - old_classes.classes).each do |name|
-          puts "#{ old_version.name } -> #{ new_version.name } Added Class => #{name}"
+          puts "#{ old_version.name } -> #{ new_version.name } Added   Class => #{name}"
         end
       end
 
-      puts "*" * 20
-      puts "Instance Methods"
-      puts "*" * 20
-      (old_classes.classes & new_classes.classes).each do |class_name|
-        old_methods = strage.find_methods(Strage::METHOD_TYPE_INSTANCE, old_version.id, old_classes.class_id(class_name)).map{|m| m['name']}
-        new_methods = strage.find_methods(Strage::METHOD_TYPE_INSTANCE, new_version.id, new_classes.class_id(class_name)).map{|m| m['name']}
+      [
+        {name: 'Instance', type: Strage::METHOD_TYPE_INSTANCE, separate: '#'},
+        {name: 'Class', type: Strage::METHOD_TYPE_CLASS, separate: '.'},
+      ].each do |target|
+        puts "*" * 40
+        puts "#{ target[:name] } Methods"
+        puts "*" * 40
+        (old_classes.classes & new_classes.classes).each do |class_name|
+          old_methods = strage.find_methods(target[:type], old_version.id, old_classes.class_id(class_name)).map{|m| m['name']}
+          new_methods = strage.find_methods(target[:type], new_version.id, new_classes.class_id(class_name)).map{|m| m['name']}
 
-        (old_methods - new_methods).each do |name|
-          puts "#{ old_version.name } -> #{ new_version.name } Deleted Instance Method => #{ class_name }##{ name }"
-        end
-        (new_methods - old_methods).each do |name|
-          puts "#{ old_version.name } -> #{ new_version.name } Added Instance Method => #{ class_name }##{ name}"
-        end
-      end
-
-      puts "*" * 20
-      puts "Class Methods"
-      puts "*" * 20
-      (old_classes.classes & new_classes.classes).each do |class_name|
-        old_methods = strage.find_methods(Strage::METHOD_TYPE_CLASS, old_version.id, old_classes.class_id(class_name)).map{|m| m['name']}
-        new_methods = strage.find_methods(Strage::METHOD_TYPE_CLASS, new_version.id, new_classes.class_id(class_name)).map{|m| m['name']}
-
-        (old_methods - new_methods).each do |name|
-          puts "#{ old_version.name } -> #{ new_version.name } Deleted Class Method => #{ class_name }.#{ name }"
-        end
-        (new_methods - old_methods).each do |name|
-          puts "#{ old_version.name } -> #{ new_version.name } Added Class Method => #{ class_name }.#{ name}"
+          (old_methods - new_methods).each do |name|
+            puts "#{ old_version.name } -> #{ new_version.name } Deleted #{ target[:name] } Method => #{ class_name }#{ target[:separate] }#{ name }"
+          end
+          (new_methods - old_methods).each do |name|
+            puts "#{ old_version.name } -> #{ new_version.name } Added   #{ target[:name] } Method => #{ class_name }#{ target[:separate] }#{ name}"
+          end
         end
       end
-
     end
   end
 
