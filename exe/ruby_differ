@@ -1,10 +1,9 @@
 #!/usr/bin/env ruby
 
-require "ruby_differ"
+require_relative "../lib/ruby_differ"
 
 old_version = ARGV.shift
 new_version = ARGV.shift
 path = ARGV.shift
 
-strage_path = RubyDiffer::StragePath.new(path)
-RubyDiffer::Save.diff(old_version, new_version, starge_path)
+RubyDiffer::Save.diff(old_version, new_version, path)

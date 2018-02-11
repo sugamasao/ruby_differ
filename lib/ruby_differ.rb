@@ -1,17 +1,11 @@
-require "ruby_differ/version"
+require_relative "ruby_differ/version"
 require 'sqlite3'
 
 module RubyDiffer
   class NotFoundRubyVersion < StandardError;end
-  class StragePath
-    attr_reader :path
-    def initialize(path)
-      @path = path || File.join(__dir__, '..', 'database.sqlite3')
-    end
-  end
   class Save
-    def self.run(strage_path)
-      strage = Strage.new(strage_path.path)
+    def self.run(path)
+      strage = Strage.new(path)
       version = strage.register_version(RUBY_VERSION)
       classes = ObjectSpace.each_object(Class).select{|c| !c.name.to_s.empty? }.sort_by {|c| c.name }
       classes.each do |c|
@@ -23,8 +17,8 @@ module RubyDiffer
       end
       strage.close
     end
-    def self.diff(old, new, strage_path)
-      strage = Strage.new(strage_path.path)
+    def self.diff(old, new, path)
+      strage = Strage.new(path)
       if old.nil? || new.nil?
         puts "list of Versions."
         strage.all_versions.each do |v|
@@ -115,6 +109,7 @@ module RubyDiffer
     METHOD_TYPE_INSTANCE = 0
     METHOD_TYPE_CLASS = 1
     def initialize(path)
+      path ||= File.join(__dir__, '..', 'database.sqlite3')
       path = Pathname(path)
       path.dirname.mkpath
       @db = SQLite3::Database.new(path.to_s)
